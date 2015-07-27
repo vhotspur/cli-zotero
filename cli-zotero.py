@@ -112,12 +112,17 @@ parser.add_argument('--key',
         metavar='API-KEY',
         required=True,
         help='Zotero API key (https://www.zotero.org/settings/keys)')
-parser.add_argument('--group',
+group_or_user = parser.add_mutually_exclusive_group(required=True)
+group_or_user.add_argument('--group',
         dest='group',
         metavar='ID',
-        required=True,
         type=int,
         help='Group ID (https://www.zotero.org/groups/)')
+group_or_user.add_argument('--user',
+        dest='user',
+        metavar='ID',
+        type=int,
+        help='User ID (https://www.zotero.org/settings/keys)')
 parser.add_argument('--limit',
         dest='limit',
         type=int,
@@ -137,8 +142,11 @@ parser.add_argument('--collection-to-bibtex',
 
 cfg = parser.parse_args()
 
-
-zot = zotero.Zotero(cfg.group, 'group', cfg.key)
+zot = None
+if cfg.group is None:
+    zot = zotero.Zotero(cfg.user, 'user', cfg.key)
+else:
+    zot = zotero.Zotero(cfg.group, 'group', cfg.key)
 
 
 if not cfg.collection_filter is None:
