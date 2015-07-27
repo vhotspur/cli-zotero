@@ -36,7 +36,7 @@ def item_to_bibtex(item):
         author = strip_accents(item['data']['creators'][0]['lastName']).lower()
         year = item['data']['date']
         title_start = strip_accents(item['data']['title']).partition(' ')[0].lower()
-        return "%s_%s_%s" % (author, year, title_start)
+        return "%s_%s_%s" % (author, title_start, year)
     
     def shall_skip(item):
         if item['data']['itemType'] == 'attachment':
