@@ -32,10 +32,18 @@ def latex_escape(s):
     return s.replace(u'\u2013', '--')
 
 def item_to_bibtex(item):
+    def skip_useless_words(where):
+        useless_words = 'a the on'.split()
+        idx = 0
+        while where[idx].lower() in useless_words:
+            idx = idx + 1
+        return where[idx]
+    
     def make_key(item):
         author = strip_accents(item['data']['creators'][0]['lastName']).lower()
         year = item['data']['date']
-        title_start = strip_accents(item['data']['title']).partition(' ')[0].lower()
+        title_words = strip_accents(item['data']['title']).split()
+        title_start = skip_useless_words(title_words).lower()
         return "%s_%s_%s" % (author, title_start, year)
     
     def shall_skip(item):
