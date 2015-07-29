@@ -205,7 +205,7 @@ else:
     zot = zotero.Zotero(cfg.group, 'group', cfg.key)
 
 
-if cfg.collection_filter:
+if not cfg.collection_filter is None:
     all_collections = zot.collections(q=cfg.collection_filter, limit=cfg.limit)
     if cfg.dump_file:
         with open(cfg.dump_file, "w") as f:
