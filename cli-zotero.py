@@ -87,7 +87,7 @@ def item_to_bibtex(item):
         return ' and '.join(names)
     
     def print_key(key, value):
-        print('  %s = {%s},' % (key, value.encode('utf-8')))
+        print('    %s = {%s},' % (key, value.encode('utf-8')))
         
     def try_field(bibtexkey, zoterokey, item, escape=True, protect=False, conversion=None):
         if zoterokey in item['data']:
