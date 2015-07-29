@@ -97,11 +97,10 @@ def item_to_bibtex(item):
     def make_author_list(creators):
         names = []
         for c in creators:
-            if c['creatorType'] == 'author' or c['creatorType'] == 'presenter':
-                if 'lastName' in c:
-                    names.append('%s, %s' % (c['lastName'], c['firstName']))
-                else:
-                    names.append('{%s}' % (c['name']))
+            if 'lastName' in c:
+                names.append('%s, %s' % (c['lastName'], c['firstName']))
+            else:
+                names.append('{%s}' % (c['name']))
         return ' and '.join(names)
     
     def print_key(key, value):
@@ -133,7 +132,7 @@ def item_to_bibtex(item):
     print_key('year', '%d' % parse_date_guessing(item['data']['date']).year)
     
     # Not so traditional types are distinguished by howpublished field for now
-    if item['data']['itemType'] in [ 'blogPost', 'webpage' ]:
+    if item['data']['itemType'] in [ 'blogPost', 'webpage', 'computerProgram' ]:
         try_field('howpublished', 'url', item, conversion=lambda x : '\\url{%s}' % x)
     if item['data']['itemType'] == 'presentation':
         if has_field('meetingName', item):
