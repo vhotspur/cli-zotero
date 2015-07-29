@@ -110,6 +110,9 @@ def item_to_bibtex(item):
     print_key('author', make_author_list(item['data']['creators']))
     
     print_key('year', '%d' % parse_date_guessing(item['data']['date']).year)
+    if item['data']['itemType'] in [ 'blogPost', 'webpage' ]:
+        try_field('howpublished', 'url', item, conversion=lambda x : '\\url{%s}' % x) 
+    
     try_field('booktitle', 'proceedingsTitle', item, protect=True)
     try_field('doi', 'DOI', item)
     try_field('isbn', 'ISBN', item)
