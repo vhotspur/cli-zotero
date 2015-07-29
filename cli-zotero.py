@@ -40,20 +40,29 @@ def parse_date_guessing(datestr):
             pass
     return datetime.datetime.today()
 
+def skip_useless_words(where):
+    useless_words = 'a the on'.split()
+    idx = 0
+    while where[idx].lower() in useless_words:
+        idx = idx + 1
+    return where[idx]
+
 def make_bibtex_key(item):
-    def skip_useless_words(where):
-        useless_words = 'a the on'.split()
-        idx = 0
-        while where[idx].lower() in useless_words:
-            idx = idx + 1
-        return where[idx]
-    
     author = strip_accents(item['data']['creators'][0]['lastName']).lower()
     year = parse_date_guessing(item['data']['date']).year
     title_words = strip_accents(item['data']['title']).split()
     title_start = skip_useless_words(title_words).lower()
     return "%s_%s_%s" % (author, title_start, year)
 
+def make_sort_key(item):
+    if item['data']['itemType'] == 'attachment':
+        return 'xxx'
+    author = strip_accents(item['data']['creators'][0]['lastName']).lower()
+    year = parse_date_guessing(item['data']['date']).year
+    title_words = strip_accents(item['data']['title']).split()
+    title_start = skip_useless_words(title_words).lower()
+    return "%s %s %s" % (year, author, title_start)
+    
 
 def item_to_bibtex(item):
     def shall_skip(item):
@@ -166,8 +175,15 @@ if not cfg.collection_filter is None:
     sys.exit()
 
 if not cfg.collection_to_bibtex is None:
-    items = zot.collection_items(cfg.collection_to_bibtex, limit=cfg.limit)
-    # Sort maybe?
+    items = []
+    start_index = 0
+    while True:
+        next_items = zot.collection_items(cfg.collection_to_bibtex, limit=cfg.limit, start=start_index)
+        if len(next_items) == 0:
+            break
+        items.extend(next_items)
+        start_index = start_index + len(next_items)
+    items = sorted(items, key=make_sort_key)
     for item in items:
         item_to_bibtex(item)
     sys.exit()
