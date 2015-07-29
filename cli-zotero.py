@@ -153,11 +153,13 @@ def item_to_bibtex(item):
         
 
 parser = argparse.ArgumentParser(description='Command-line client for Zotero')
+
 parser.add_argument('--key',
         dest='key',
         metavar='API-KEY',
         required=True,
         help='Zotero API key (https://www.zotero.org/settings/keys)')
+
 group_or_user = parser.add_mutually_exclusive_group(required=True)
 group_or_user.add_argument('--group',
         dest='group',
@@ -169,22 +171,30 @@ group_or_user.add_argument('--user',
         metavar='ID',
         type=int,
         help='User ID (https://www.zotero.org/settings/keys)')
+
 parser.add_argument('--limit',
         dest='limit',
         type=int,
         default=30,
         metavar='N',
         help='Set internal limit of the queries')
-parser.add_argument('--list-collections',
+
+action_args = parser.add_mutually_exclusive_group(required=True)
+action_args.add_argument('--list-collections',
         dest='collection_filter',
         nargs='?',
         const='',
         metavar='TITLE',
         help='List your collections (title partial match)')
-parser.add_argument('--collection-to-bibtex',
+action_args.add_argument('--collection-to-bibtex',
         dest='collection_to_bibtex',
         metavar='COLLECTION-ID',
         help='Export given collection to BibTeX')
+
+parser.add_argument('--dump',
+        dest='dump_file',
+        metavar='FILENAME',
+        help='Dump retrieved data through pprint to FILENAME')
 
 cfg = parser.parse_args()
 
@@ -195,13 +205,16 @@ else:
     zot = zotero.Zotero(cfg.group, 'group', cfg.key)
 
 
-if not cfg.collection_filter is None:
+if cfg.collection_filter:
     all_collections = zot.collections(q=cfg.collection_filter, limit=cfg.limit)
+    if cfg.dump_file:
+        with open(cfg.dump_file, "w") as f:
+            pprint(all_collections, f)
     for col in all_collections:
         print("%s - %s" % (col['key'], col['data']['name']))
     sys.exit()
 
-if not cfg.collection_to_bibtex is None:
+if cfg.collection_to_bibtex:
     items = []
     start_index = 0
     while True:
@@ -210,6 +223,9 @@ if not cfg.collection_to_bibtex is None:
             break
         items.extend(next_items)
         start_index = start_index + len(next_items)
+    if cfg.dump_file:
+        with open(cfg.dump_file, "w") as f:
+            pprint(items, f)
     items = sorted(items, key=make_sort_key)
     for item in items:
         item_to_bibtex(item)
