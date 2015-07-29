@@ -55,6 +55,14 @@ def get_first_author(item):
         return author['name']
 
 def make_bibtex_key(item):
+    if 'extra' in item['data']:
+        import re
+        lines = item['data']['extra'].split('\n')
+        pat = re.compile('bibtex:[ \t]*(.*)')
+        for l in lines:
+            m = pat.match(l)
+            if m:
+                return m.group(1)
     author = strip_accents(get_first_author(item)).lower()
     year = parse_date_guessing(item['data']['date']).year
     title_words = strip_accents(item['data']['title']).split()
