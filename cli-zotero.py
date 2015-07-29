@@ -89,7 +89,7 @@ def item_to_bibtex(item):
     def make_author_list(creators):
         names = []
         for c in creators:
-            if c['creatorType'] == 'author':
+            if c['creatorType'] == 'author' or c['creatorType'] == 'presenter':
                 if 'lastName' in c:
                     names.append('%s, %s' % (c['lastName'], c['firstName']))
                 else:
@@ -98,7 +98,10 @@ def item_to_bibtex(item):
     
     def print_key(key, value):
         print('    %s = {%s},' % (key, value.encode('utf-8')))
-        
+    
+    def has_field(zoterokey, item):
+        return zoterokey in item['data'] and item['data'][zoterokey] != ''
+    
     def try_field(bibtexkey, zoterokey, item, escape=True, protect=False, conversion=None):
         if zoterokey in item['data']:
             if item['data'][zoterokey] != '':
@@ -120,8 +123,16 @@ def item_to_bibtex(item):
     print_key('author', make_author_list(item['data']['creators']))
     
     print_key('year', '%d' % parse_date_guessing(item['data']['date']).year)
+    
+    # Not so traditional types are distinguished by howpublished field for now
     if item['data']['itemType'] in [ 'blogPost', 'webpage' ]:
-        try_field('howpublished', 'url', item, conversion=lambda x : '\\url{%s}' % x) 
+        try_field('howpublished', 'url', item, conversion=lambda x : '\\url{%s}' % x)
+    if item['data']['itemType'] == 'presentation':
+        if has_field('meetingName', item):
+            s = 'Presentation at {%s}' % item['data']['meetingName']
+            if has_field('url', item):
+                s = '%s, \\url{%s}' % (s, item['data']['url'])
+            print_key('howpublished', s)
     
     try_field('booktitle', 'proceedingsTitle', item, protect=True)
     try_field('doi', 'DOI', item)
