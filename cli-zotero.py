@@ -47,8 +47,15 @@ def skip_useless_words(where):
         idx = idx + 1
     return where[idx]
 
+def get_first_author(item):
+    author = item['data']['creators'][0]
+    if 'lastName' in author:
+        return author['lastName']
+    else:
+        return author['name']
+
 def make_bibtex_key(item):
-    author = strip_accents(item['data']['creators'][0]['lastName']).lower()
+    author = strip_accents(get_first_author(item)).lower()
     year = parse_date_guessing(item['data']['date']).year
     title_words = strip_accents(item['data']['title']).split()
     title_start = skip_useless_words(title_words).lower()
@@ -57,7 +64,7 @@ def make_bibtex_key(item):
 def make_sort_key(item):
     if item['data']['itemType'] == 'attachment':
         return 'xxx'
-    author = strip_accents(item['data']['creators'][0]['lastName']).lower()
+    author = strip_accents(get_first_author(item)).lower()
     year = parse_date_guessing(item['data']['date']).year
     title_words = strip_accents(item['data']['title']).split()
     title_start = skip_useless_words(title_words).lower()
@@ -83,7 +90,10 @@ def item_to_bibtex(item):
         names = []
         for c in creators:
             if c['creatorType'] == 'author':
-                names.append('%s, %s' % (c['lastName'], c['firstName']))
+                if 'lastName' in c:
+                    names.append('%s, %s' % (c['lastName'], c['firstName']))
+                else:
+                    names.append('{%s}' % (c['name']))
         return ' and '.join(names)
     
     def print_key(key, value):
