@@ -127,7 +127,7 @@ def item_to_bibtex(item):
     try_field('doi', 'DOI', item)
     try_field('isbn', 'ISBN', item)
     try_field('issn', 'ISSN', item)
-    try_field('journaltitle', 'publicationTitle', item, protect=True)
+    try_field('journal', 'publicationTitle', item, protect=True)
     try_field('location', 'place', item)
     try_field('number', 'issue', item)
     try_field('pages', 'pages', item, conversion=lambda x : x.replace('-', '--'))
