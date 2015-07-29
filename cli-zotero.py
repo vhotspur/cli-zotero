@@ -66,7 +66,7 @@ def make_bibtex_key(item):
     author = strip_accents(get_first_author(item)).lower()
     year = parse_date_guessing(item['data']['date']).year
     title_words = strip_accents(item['data']['title']).split()
-    title_start = skip_useless_words(title_words).lower()
+    title_start = filter(unicode.isalnum, skip_useless_words(title_words).lower())
     return "%s_%s_%s" % (author, title_start, year)
 
 def make_sort_key(item):
