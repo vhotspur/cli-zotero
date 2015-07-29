@@ -31,7 +31,16 @@ def strip_accents(s):
 def latex_escape(s):
     return s.replace(u'\u2013', '--')
 
-def item_to_bibtex(item):
+def parse_date_guessing(datestr):
+    import datetime
+    for fmt in [ "%B %d %Y", "%B %d, %Y", "%B %Y", "%Y" ]:
+        try:
+            return datetime.datetime.strptime(datestr, fmt)
+        except ValueError as e:
+            pass
+    return datetime.datetime.today()
+
+def make_bibtex_key(item):
     def skip_useless_words(where):
         useless_words = 'a the on'.split()
         idx = 0
@@ -39,13 +48,14 @@ def item_to_bibtex(item):
             idx = idx + 1
         return where[idx]
     
-    def make_key(item):
-        author = strip_accents(item['data']['creators'][0]['lastName']).lower()
-        year = item['data']['date']
-        title_words = strip_accents(item['data']['title']).split()
-        title_start = skip_useless_words(title_words).lower()
-        return "%s_%s_%s" % (author, title_start, year)
-    
+    author = strip_accents(item['data']['creators'][0]['lastName']).lower()
+    year = parse_date_guessing(item['data']['date']).year
+    title_words = strip_accents(item['data']['title']).split()
+    title_start = skip_useless_words(title_words).lower()
+    return "%s_%s_%s" % (author, title_start, year)
+
+
+def item_to_bibtex(item):
     def shall_skip(item):
         if item['data']['itemType'] == 'attachment':
             return True
@@ -85,7 +95,7 @@ def item_to_bibtex(item):
     if shall_skip(item):
         return
     
-    print('@%s{%s,' % (bib_type(item), make_key(item)))
+    print('@%s{%s,' % (bib_type(item), make_bibtex_key(item)))
     
     try_field('title', 'title', item, protect=True)
     print_key('author', make_author_list(item['data']['creators']))
