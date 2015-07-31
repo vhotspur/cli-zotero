@@ -18,7 +18,9 @@
 
 from pyzotero import zotero
 from pprint import pprint
+from ConfigParser import SafeConfigParser
 import sys
+import os
 import argparse
 import pickle
 
@@ -157,27 +159,45 @@ def item_to_bibtex(item):
     try_field('abstract', 'abstractNote', item)
     
     print('}\n')        
-        
+
+
+class MyConfigParser(SafeConfigParser):
+    def __init__(self):
+        SafeConfigParser.__init__(self)
+    
+    def get_with_default(self, section, option, default_value=None):
+        if self.has_option(section, option):
+            return self.get(section, option)
+        else:
+            return default_value
+
+cfgfile = MyConfigParser()
+cfgfile.read(os.path.expanduser('~/.config/cli-zotero.conf'))
 
 parser = argparse.ArgumentParser(description='Command-line client for Zotero')
 
 parser.add_argument('--key',
         dest='key',
+        required=not cfgfile.has_option('core', 'key'),
+        default=cfgfile.get_with_default('core', 'key'),
         metavar='API-KEY',
-        required=True,
-        help='Zotero API key (https://www.zotero.org/settings/keys)')
+        help='Zotero API key (https://www.zotero.org/settings/keys)\nOr specify in [core] of configuration file.')
 
-group_or_user = parser.add_mutually_exclusive_group(required=True)
-group_or_user.add_argument('--group',
+identity_opts = parser.add_mutually_exclusive_group(required=True)
+identity_opts.add_argument('--group',
         dest='group',
         metavar='ID',
         type=int,
         help='Group ID (https://www.zotero.org/groups/)')
-group_or_user.add_argument('--user',
+identity_opts.add_argument('--user',
         dest='user',
         metavar='ID',
         type=int,
         help='User ID (https://www.zotero.org/settings/keys)')
+identity_opts.add_argument('--id',
+        dest='identity',
+        metavar='NAME',
+        help='Identity specified in [identities] in configuration file.')
 
 parser.add_argument('--limit',
         dest='limit',
@@ -206,10 +226,18 @@ parser.add_argument('--dump',
 cfg = parser.parse_args()
 
 zot = None
-if cfg.group is None:
+if cfg.group:
+    zot = zotero.Zotero(cfg.group, 'group', cfg.key)
+elif cfg.user:
     zot = zotero.Zotero(cfg.user, 'user', cfg.key)
 else:
-    zot = zotero.Zotero(cfg.group, 'group', cfg.key)
+    id_line = cfgfile.get_with_default('identities', cfg.identity)
+    if id_line is None:
+        sys.exit('Unknown identity "%s".' % cfg.identity)
+    id_parts = id_line.split()
+    if len(id_parts) != 2 or (id_parts[0] not in ['user', 'group' ]):
+        sys.exit('Wrong identity configuration "%s".' % id_line)
+    zot = zotero.Zotero(id_parts[1], id_parts[0], cfg.key)
 
 
 if not cfg.collection_filter is None:
