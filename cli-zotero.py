@@ -126,10 +126,12 @@ def item_to_bibtex(item):
     def has_field(zoterokey, item):
         return zoterokey in item['data'] and item['data'][zoterokey] != ''
     
-    def try_field(bibtexkey, zoterokey, item, escape=True, protect=False, conversion=None):
-        if zoterokey in item['data']:
-            if item['data'][zoterokey] != '':
-                value = item['data'][zoterokey]
+    def try_field(bibtexkey, zoterokeys, item, escape=True, protect=False, conversion=None):
+        if not type(zoterokeys) is list:
+            zoterokeys = [ zoterokeys ]
+        for key in zoterokeys:
+            if (key in item['data']) and (item['data'][key] != ''):
+                value = item['data'][key]
                 if not conversion is None:
                     value = conversion(value)
                 if escape:
@@ -137,6 +139,8 @@ def item_to_bibtex(item):
                 if protect:
                     value = "{%s}" % value
                 print_key(bibtexkey, value)
+                # Exit after first match
+                return
     
     if shall_skip(item):
         return
@@ -158,8 +162,7 @@ def item_to_bibtex(item):
                 s = '%s, \\url{%s}' % (s, item['data']['url'])
             print_key('howpublished', s)
     
-    try_field('booktitle', 'proceedingsTitle', item, protect=True)
-    try_field('booktitle', 'bookTitle', item, protect=True)
+    try_field('booktitle', [ 'proceedingsTitle', 'bookTitle'], item, protect=True)
     print_key('editor', make_author_list(item['data']['creators'], 'editor'), False)
     
     try_field('doi', 'DOI', item)
