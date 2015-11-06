@@ -223,13 +223,6 @@ identity_opts.add_argument('--id',
         metavar='NAME',
         help='Identity specified in [identities] in configuration file.')
 
-parser.add_argument('--limit',
-        dest='limit',
-        type=int,
-        default=30,
-        metavar='N',
-        help='Set internal limit of the queries')
-
 action_args = parser.add_mutually_exclusive_group(required=True)
 action_args.add_argument('--list-collections',
         dest='collection_filter',
@@ -246,6 +239,13 @@ parser.add_argument('--dump',
         dest='dump_file',
         metavar='FILENAME',
         help='Dump retrieved data through pprint to FILENAME')
+
+parser.add_argument('--limit',
+        dest='limit',
+        type=int,
+        default=30,
+        metavar='N',
+        help='Set internal limit of the queries')
 
 cfg = parser.parse_args()
 
