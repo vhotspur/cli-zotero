@@ -162,19 +162,21 @@ def item_to_bibtex(item):
                 s = '%s, \\url{%s}' % (s, item['data']['url'])
             print_key('howpublished', s)
     
-    try_field('booktitle', [ 'proceedingsTitle', 'bookTitle'], item, protect=True)
+    try_field('booktitle', [ 'proceedingsTitle', 'bookTitle' ], item, protect=True)
+    try_field('journal', 'publicationTitle', item, protect=True)
     print_key('editor', make_author_list(item['data']['creators'], 'editor'), False)
-    
+    try_field('publisher', 'publisher', item)
+    try_field('series', 'series', item, protect=True)
+    try_field('number', [ 'seriesNumber', 'issue' ], item)
+
+    try_field('location', 'place', item)
+
     try_field('doi', 'DOI', item)
     try_field('isbn', 'ISBN', item)
     try_field('issn', 'ISSN', item)
-    try_field('journal', 'publicationTitle', item, protect=True)
-    try_field('location', 'place', item)
-    try_field('number', 'issue', item)
+
     try_field('pages', 'pages', item, conversion=lambda x : x.replace('-', '--'))
-    try_field('publisher', 'publisher', item)
-    try_field('series', 'series', item, protect=True)
-    try_field('number', 'seriesNumber', item)
+
     try_field('url', 'url', item)
     try_field('volume', 'volume', item)
     try_field('shorttitle', 'shortTitle', item)
