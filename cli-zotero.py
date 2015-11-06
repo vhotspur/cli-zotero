@@ -93,19 +93,34 @@ def item_to_bibtex(item):
             return 'article'
         elif item['data']['itemType'] == 'conferencePaper':
             return 'inproceedings'
+        elif item['data']['itemType'] == 'bookSection':
+            return 'incollection'
         else:
             return 'misc'
     
-    def make_author_list(creators):
+    def make_author_list(creators, creator_type = None):
+        # By default, we try to collect only authors.
+        # If there is no author explicitly specify, we take everybody
+        # (probably not the best thing as different types has different
+        # names for creators, e.g. presenter but it is better than to
+        # mix authors with editors for book chapters).
+        if creator_type is None:
+            result = make_author_list(creators, 'author')
+            if result != '':
+                return result
         names = []
         for c in creators:
+            if (not creator_type is None) and ('creatorType' in c) and (c['creatorType'] != creator_type):
+                continue
             if 'lastName' in c:
                 names.append('%s, %s' % (c['lastName'], c['firstName']))
             else:
                 names.append('{%s}' % (c['name']))
         return ' and '.join(names)
     
-    def print_key(key, value):
+    def print_key(key, value, print_empty = True):
+        if (not print_empty) and (value == ''):
+            return
         print('    %s = {%s},' % (key, value.encode('utf-8')))
     
     def has_field(zoterokey, item):
@@ -144,6 +159,9 @@ def item_to_bibtex(item):
             print_key('howpublished', s)
     
     try_field('booktitle', 'proceedingsTitle', item, protect=True)
+    try_field('booktitle', 'bookTitle', item, protect=True)
+    print_key('editor', make_author_list(item['data']['creators'], 'editor'), False)
+    
     try_field('doi', 'DOI', item)
     try_field('isbn', 'ISBN', item)
     try_field('issn', 'ISSN', item)
@@ -153,6 +171,7 @@ def item_to_bibtex(item):
     try_field('pages', 'pages', item, conversion=lambda x : x.replace('-', '--'))
     try_field('publisher', 'publisher', item)
     try_field('series', 'series', item, protect=True)
+    try_field('number', 'seriesNumber', item)
     try_field('url', 'url', item)
     try_field('volume', 'volume', item)
     try_field('shorttitle', 'shortTitle', item)
