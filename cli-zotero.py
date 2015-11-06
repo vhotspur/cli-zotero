@@ -158,7 +158,7 @@ def item_to_bibtex(item):
     try_field('shorttitle', 'shortTitle', item)
     try_field('abstract', 'abstractNote', item)
     
-    print('}\n')        
+    print('}\n')
 
 
 class MyConfigParser(SafeConfigParser):
