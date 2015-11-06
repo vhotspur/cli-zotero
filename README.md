@@ -27,3 +27,23 @@ optional arguments:
   --limit N             Set internal limit of the queries
 ```
 
+Users can create configuration file `~/.config/cli-zotero.conf` to store their
+keys. The file uses typical INI format and can look like this:
+
+```ini
+[core]
+key = your-zotero-key-here
+
+[identities]
+work = group 123456
+me = user 98765
+```
+
+With this file in place, dumping a collection to BibTeX is rather straightforward.
+
+```shell
+# List collections matching given title
+./cli-zotero.py --id work --list-collections search-term-here
+# Notice the six-character long code and copy it to the second command
+./cli-zotero.py --id work --collection-to-bibtex collection-id-here >refs.bib
+```
