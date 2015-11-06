@@ -65,7 +65,7 @@ def make_bibtex_key(item):
             m = pat.match(l)
             if m:
                 return m.group(1)
-    author = strip_accents(get_first_author(item)).lower().replace(" ", "")
+    author = filter(unicode.isalpha, strip_accents(get_first_author(item)).lower())
     year = parse_date_guessing(item['data']['date']).year
     title_words = strip_accents(item['data']['title']).split()
     title_start = filter(unicode.isalnum, skip_useless_words(title_words).lower())
