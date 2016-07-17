@@ -142,6 +142,19 @@ def item_to_bibtex(item):
                 # Exit after first match
                 return
     
+    def get_doi(item):
+        if ('DOI' in item['data']) and (item['data']['DOI'] != ''):
+            return item['data']['DOI']
+        else:
+            import re
+            lines = item['data']['extra'].split('\n')
+            pat = re.compile('[dD][oO][iI]:[ \t]*(.*)')
+            for l in lines:
+                m = pat.match(l)
+                if m:
+                    return m.group(1)
+            return ''
+
     if shall_skip(item):
         return
     
@@ -171,7 +184,9 @@ def item_to_bibtex(item):
 
     try_field('location', 'place', item)
 
-    try_field('doi', 'DOI', item)
+    item_doi = get_doi(item)
+    if item_doi != '':
+        print_key('doi', item_doi)
     try_field('isbn', 'ISBN', item)
     try_field('issn', 'ISSN', item)
 
