@@ -95,6 +95,8 @@ def item_to_bibtex(item):
             return 'inproceedings'
         elif item['data']['itemType'] == 'bookSection':
             return 'incollection'
+        elif item['data']['itemType'] == 'thesis':
+            return 'mastersthesis'
         else:
             return 'misc'
     
@@ -182,8 +184,13 @@ def item_to_bibtex(item):
     try_field('series', 'series', item, protect=True)
     try_field('number', [ 'seriesNumber', 'issue' ], item)
 
-    try_field('location', 'place', item)
-
+    try_field('type', 'thesisType', item)
+    try_field('school', 'university', item)
+    if item['data']['itemType'] == 'thesis':
+        try_field('address', 'place', item)
+    else:
+        try_field('location', 'place', item)
+    
     item_doi = get_doi(item)
     if item_doi != '':
         print_key('doi', item_doi)
