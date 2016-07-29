@@ -95,6 +95,8 @@ def item_to_bibtex(item):
             return 'inproceedings'
         elif item['data']['itemType'] == 'bookSection':
             return 'incollection'
+        elif item['data']['itemType'] == 'book':
+            return 'book'
         elif item['data']['itemType'] == 'thesis':
             return 'mastersthesis'
         else:
