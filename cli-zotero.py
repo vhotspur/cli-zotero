@@ -35,7 +35,7 @@ def latex_escape(s):
 
 def parse_date_guessing(datestr):
     import datetime
-    for fmt in [ "%B %d %Y", "%B %d, %Y", "%B %Y", "%Y", "%Y-%m-%d" ]:
+    for fmt in [ "%B %d %Y", "%B %d, %Y", "%B %Y", "%Y", "%Y/%m/%d", "%Y-%m-%d" ]:
         try:
             return datetime.datetime.strptime(datestr, fmt)
         except ValueError as e:
