@@ -119,7 +119,10 @@ def item_to_bibtex(item):
             if 'lastName' in c:
                 names.append('%s, %s' % (c['lastName'], c['firstName']))
             else:
-                names.append('{%s}' % (c['name']))
+                if c['name'] == 'et al.':
+                    names.append('others')
+                else:
+                    names.append('{%s}' % (c['name']))
         return ' and '.join(names)
     
     def print_key(key, value, print_empty = True):
