@@ -43,7 +43,7 @@ def parse_date_guessing(datestr):
     return datetime.datetime.today()
 
 def skip_useless_words(where):
-    useless_words = 'a the on for'.split()
+    useless_words = 'a an the on for'.split()
     idx = 0
     while where[idx].lower() in useless_words:
         idx = idx + 1
