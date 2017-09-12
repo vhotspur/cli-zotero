@@ -31,7 +31,7 @@ def strip_accents(s):
                    if unicodedata.category(c) != 'Mn')
 
 def latex_escape(s):
-    return s.replace(u'\u2013', '--').replace(u'&', '\\&').replace(u'%', '\\%')
+    return s.replace(u'\u2013', '--').replace(u'&', '\\&').replace(u'%', '\\%').replace(u'#', '\\#')
 
 def parse_date_guessing(datestr):
     import datetime
