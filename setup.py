@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 """
 Installation:
-    pip install git+https://github.com/Erotemic/cli-zotero.git
+    pip install git+https://github.com/urschrei/cli-zotero.git
 
 Developing:
-    git clone https://github.com/Erotemic/cli-zotero.git
+    git clone https://github.com/urschrei/cli-zotero.git
     pip install -e cli-zotero
 
 Pypi:
